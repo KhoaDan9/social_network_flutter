@@ -68,51 +68,52 @@ class _PostViewState extends State<PostView> {
                     ],
                   ),
                 ),
-                GestureDetector(
-                  onDoubleTap: () async {
-                    await FireStoreMethod().likePost(
-                      widget.snap['postId'],
-                      user.uid,
-                      widget.snap['likes'],
-                    );
-                    setState(() {
-                      isLikeAnimating = true;
-                    });
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.27,
-                          width: double.infinity,
-                          child: Image.network(
-                            widget.snap['postPhotoUrl'],
+                if (widget.snap['postPhotoUrl'] != '')
+                  GestureDetector(
+                    onDoubleTap: () async {
+                      await FireStoreMethod().likePost(
+                        widget.snap['postId'],
+                        user.uid,
+                        widget.snap['likes'],
+                      );
+                      setState(() {
+                        isLikeAnimating = true;
+                      });
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.27,
+                            width: double.infinity,
+                            child: Image.network(
+                              widget.snap['postPhotoUrl'],
+                            ),
                           ),
                         ),
-                      ),
-                      AnimatedOpacity(
-                        duration: const Duration(milliseconds: 200),
-                        opacity: isLikeAnimating ? 1 : 0,
-                        child: LikeAnimationView(
-                          isAnimating: isLikeAnimating,
-                          duration: const Duration(milliseconds: 400),
-                          onEnd: () {
-                            setState(() {
-                              isLikeAnimating = false;
-                            });
-                          },
-                          child: const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                            size: 100,
+                        AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: isLikeAnimating ? 1 : 0,
+                          child: LikeAnimationView(
+                            isAnimating: isLikeAnimating,
+                            duration: const Duration(milliseconds: 400),
+                            onEnd: () {
+                              setState(() {
+                                isLikeAnimating = false;
+                              });
+                            },
+                            child: const Icon(
+                              Icons.favorite,
+                              color: Colors.red,
+                              size: 100,
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
                 Row(
                   children: [
                     Expanded(

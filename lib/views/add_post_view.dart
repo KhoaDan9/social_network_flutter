@@ -17,6 +17,7 @@ class AddPostView extends StatefulWidget {
 class _AddPostViewState extends State<AddPostView> {
   Uint8List? _image;
   late TextEditingController _textController;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -30,8 +31,20 @@ class _AddPostViewState extends State<AddPostView> {
     super.dispose();
   }
 
-  postOnclick() async {
+  postOnclick(BuildContext context) async {
+    setState(() {
+      isLoading = true;
+    });
+    FocusManager.instance.primaryFocus?.unfocus();
     await FireStoreMethod().uploadPost(_image, _textController.text);
+    setState(() {
+      isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Your post was sent'),
+      ),
+    );
   }
 
   selectImage(BuildContext context) async {
@@ -76,7 +89,7 @@ class _AddPostViewState extends State<AddPostView> {
         actions: [
           TextButton(
               onPressed: () {
-                postOnclick();
+                postOnclick(context);
               },
               child: Text(
                 'Post',
@@ -89,25 +102,30 @@ class _AddPostViewState extends State<AddPostView> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              if (_image != null)
-                Image.memory(
-                  _image!,
-                  width: 300,
-                  height: 300,
-                ),
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: "What is happening?",
-                ),
-                controller: _textController,
-                maxLines: null,
+        child: Column(
+          children: [
+            if (isLoading) const LinearProgressIndicator(),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  if (_image != null)
+                    Image.memory(
+                      _image!,
+                      width: 300,
+                      height: 300,
+                    ),
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: "What is happening?",
+                    ),
+                    controller: _textController,
+                    maxLines: null,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: IconButton(
