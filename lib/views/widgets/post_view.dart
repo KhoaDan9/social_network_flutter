@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
+import 'package:instagramz_flutter/utilities/post_menu_item.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -62,8 +63,85 @@ class _PostViewState extends State<PostView> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {},
                         icon: const Icon(Icons.more_vert),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20)),
+                            ),
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // InkWell(
+                                  //   onTap: () {},
+                                  //   borderRadius: const BorderRadius.vertical(
+                                  //       top: Radius.circular(20)),
+                                  //   child: Container(
+                                  //     padding: const EdgeInsets.fromLTRB(
+                                  //         10, 10, 0, 5),
+                                  //     child: const Row(
+                                  //       children: [
+                                  //         Icon(
+                                  //           Icons.edit_outlined,
+                                  //           size: 22,
+                                  //         ),
+                                  //         SizedBox(
+                                  //           width: 10,
+                                  //         ),
+                                  //         Text(
+                                  //           'Edit post',
+                                  //           style: TextStyle(fontSize: 22),
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  InkWell(
+                                    onTap: () {
+                                      FireStoreMethod()
+                                          .deletePost(widget.snap['postId']);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text('Delete post successfully'),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 10),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.delete_outline,
+                                            size: 22,
+                                            color: Colors.red,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            'Delete post',
+                                            style: TextStyle(
+                                                fontSize: 22,
+                                                color: Colors.red),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),

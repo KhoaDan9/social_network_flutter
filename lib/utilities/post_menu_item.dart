@@ -1,0 +1,1 @@
+enum PostMenuItem { Edit, Delete }
