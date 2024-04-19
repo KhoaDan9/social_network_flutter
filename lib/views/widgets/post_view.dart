@@ -5,6 +5,7 @@ import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/utilities/post_menu_item.dart';
+import 'package:instagramz_flutter/views/comment_view.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -226,7 +227,18 @@ class _PostViewState extends State<PostView> {
                     Expanded(
                       child: IconButton(
                         icon: const Icon(Icons.comment_outlined),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return CommentView(
+                                  postId: widget.snap['postId'],
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Expanded(

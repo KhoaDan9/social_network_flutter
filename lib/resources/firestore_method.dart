@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:instagramz_flutter/models/comment.dart';
 import 'package:instagramz_flutter/models/post.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/resources/auth_method.dart';
@@ -63,6 +64,26 @@ class FireStoreMethod {
   Future<void> deletePost(String postId) async {
     try {
       _firestore.collection("posts").doc(postId).delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> storeComment(String postId, String content) async {
+    try {
+      final user = await AuthMethod().getUserDetails();
+      String commentId = const Uuid().v1();
+      Comment cmt = Comment(
+        commentId: commentId,
+        postId: postId,
+        uid: user.uid,
+        username: user.username,
+        content: content,
+        likes: const [],
+        userPhotoUrl: user.photoUrl,
+        datePublished: DateTime.now(),
+      );
+      await _firestore.collection('comments').doc(commentId).set(cmt.toJson());
     } catch (e) {
       print(e);
     }
