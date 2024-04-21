@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:instagramz_flutter/models/comment.dart';
 import 'package:instagramz_flutter/models/post.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
@@ -45,11 +46,11 @@ class FireStoreMethod {
   Future<void> likePost(String postId, String uid, List likes) async {
     try {
       if (likes.contains(uid)) {
-        await _firestore.collection('posts').doc(postId).update({
+        _firestore.collection('posts').doc(postId).update({
           'likes': FieldValue.arrayRemove([uid]),
         });
       } else {
-        await _firestore.collection('posts').doc(postId).update({
+        _firestore.collection('posts').doc(postId).update({
           'likes': FieldValue.arrayUnion([uid]),
         });
       }
@@ -58,7 +59,7 @@ class FireStoreMethod {
     }
   }
 
-  Future<void> deletePost(String postId) async {
+  Future<void> deletePost(String postId, String imgUrl) async {
     try {
       _firestore.collection("posts").doc(postId).delete();
       _firestore
@@ -74,6 +75,9 @@ class FireStoreMethod {
               )
             },
           );
+      if (imgUrl != "") {
+        FirebaseStorage.instance.refFromURL(imgUrl).delete();
+      }
     } catch (e) {
       print(e);
     }

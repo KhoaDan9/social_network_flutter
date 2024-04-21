@@ -119,8 +119,9 @@ class _PostViewState extends State<PostView> {
                                   InkWell(
                                     onTap: () {
                                       Navigator.pop(context);
-                                      FireStoreMethod()
-                                          .deletePost(widget.snap['postId']);
+                                      FireStoreMethod().deletePost(
+                                          widget.snap['postId'],
+                                          widget.snap['postPhotoUrl']);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(
