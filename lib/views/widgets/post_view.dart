@@ -128,6 +128,7 @@ class _PostViewState extends State<PostView> {
                                               Text('Delete post successfully'),
                                         ),
                                       );
+                                      setState(() {});
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(

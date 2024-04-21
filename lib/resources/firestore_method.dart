@@ -61,6 +61,19 @@ class FireStoreMethod {
   Future<void> deletePost(String postId) async {
     try {
       _firestore.collection("posts").doc(postId).delete();
+      _firestore
+          .collection("comments")
+          .where('postId', isEqualTo: postId)
+          .get()
+          .then(
+            (querySnapshot) => {
+              querySnapshot.docs.forEach(
+                (comment) {
+                  comment.reference.delete();
+                },
+              )
+            },
+          );
     } catch (e) {
       print(e);
     }
