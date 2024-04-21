@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
-import 'package:instagramz_flutter/utilities/post_menu_item.dart';
 import 'package:instagramz_flutter/views/comment_view.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +19,20 @@ class PostView extends StatefulWidget {
 
 class _PostViewState extends State<PostView> {
   bool isLikeAnimating = false;
+  int cmtNum = 0;
+
+  void getCmtNum() async {
+    int num = await FireStoreMethod().getCommentNum(widget.snap['postId']);
+    setState(() {
+      cmtNum = num;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCmtNum();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,20 +238,25 @@ class _PostViewState extends State<PostView> {
                       ),
                     ),
                     Expanded(
-                      child: IconButton(
-                        icon: const Icon(Icons.comment_outlined),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return CommentView(
-                                  postId: widget.snap['postId'],
-                                );
-                              },
-                            ),
-                          );
-                        },
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.comment_outlined),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return CommentView(
+                                      postId: widget.snap['postId'],
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          if (cmtNum > 0) Text(cmtNum.toString())
+                        ],
                       ),
                     ),
                     Expanded(

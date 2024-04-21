@@ -1,14 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:instagramz_flutter/models/comment.dart';
 import 'package:instagramz_flutter/models/post.dart';
-import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
 import 'package:uuid/uuid.dart';
-import 'package:uuid/v1.dart';
 
 class FireStoreMethod {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -84,6 +81,31 @@ class FireStoreMethod {
         datePublished: DateTime.now(),
       );
       await _firestore.collection('comments').doc(commentId).set(cmt.toJson());
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<int> getCommentNum(String postId) async {
+    QuerySnapshot snap = await _firestore
+        .collection('comments')
+        .where('postId', isEqualTo: postId)
+        .orderBy('datePublished', descending: true)
+        .get();
+    return snap.docs.length;
+  }
+
+  Future<void> likeComment(String cmtId, String uid, List likes) async {
+    try {
+      if (likes.contains(uid)) {
+        await _firestore.collection('comments').doc(cmtId).update({
+          'likes': FieldValue.arrayRemove([uid]),
+        });
+      } else {
+        await _firestore.collection('comments').doc(cmtId).update({
+          'likes': FieldValue.arrayUnion([uid]),
+        });
+      }
     } catch (e) {
       print(e);
     }
