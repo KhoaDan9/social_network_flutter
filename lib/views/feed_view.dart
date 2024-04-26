@@ -11,10 +11,13 @@ class FeedView extends StatefulWidget {
 }
 
 class _FeedViewState extends State<FeedView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   String logo_url = 'assets/images/image/rata_logo.svg';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: SvgPicture.asset(
           logo_url,
@@ -44,8 +47,8 @@ class _FeedViewState extends State<FeedView> {
 
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) =>
-                PostView(snap: snapshot.data!.docs[index]),
+            itemBuilder: (context, index) => PostView(
+                snap: snapshot.data!.docs[index], scaffoldKey: _scaffoldKey),
           );
         },
       ),

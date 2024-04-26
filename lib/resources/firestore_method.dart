@@ -127,4 +127,26 @@ class FireStoreMethod {
       print(e);
     }
   }
+
+  Future<void> followUser(String userId, String uid, List following) async {
+    try {
+      if (following.contains(uid)) {
+        await _firestore.collection('users').doc(userId).update({
+          'following': FieldValue.arrayRemove([uid]),
+        });
+        await _firestore.collection('users').doc(uid).update({
+          'followers': FieldValue.arrayRemove([userId])
+        });
+      } else {
+        await _firestore.collection('users').doc(userId).update({
+          'following': FieldValue.arrayUnion([uid]),
+        });
+        await _firestore.collection('users').doc(uid).update({
+          'followers': FieldValue.arrayUnion([userId])
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }

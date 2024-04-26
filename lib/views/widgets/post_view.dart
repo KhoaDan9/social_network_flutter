@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
@@ -11,7 +9,8 @@ import 'package:provider/provider.dart';
 
 class PostView extends StatefulWidget {
   final snap;
-  const PostView({super.key, required this.snap});
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  const PostView({super.key, required this.snap, required this.scaffoldKey});
 
   @override
   State<PostView> createState() => _PostViewState();
@@ -37,7 +36,13 @@ class _PostViewState extends State<PostView> {
   @override
   Widget build(BuildContext context) {
     model.User user = Provider.of<UserProvider>(context).getUser;
-
+    UserProvider userProvider = Provider.of(context, listen: false);
+    String textFollow;
+    if (!user.following.contains(widget.snap['uid'])) {
+      textFollow = 'Follow';
+    } else {
+      textFollow = 'Unfollow';
+    }
     return Container(
       padding: const EdgeInsets.fromLTRB(5, 4, 0, 4).copyWith(),
       child: Row(
@@ -116,44 +121,106 @@ class _PostViewState extends State<PostView> {
                                   //     ),
                                   //   ),
                                   // ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pop(context);
-                                      FireStoreMethod().deletePost(
-                                          widget.snap['postId'],
-                                          widget.snap['postPhotoUrl']);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Delete post successfully'),
+
+                                  if (user.uid != widget.snap['uid'])
+                                    InkWell(
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        await FireStoreMethod().followUser(
+                                            user.uid,
+                                            widget.snap['uid'],
+                                            user.following);
+
+                                        ScaffoldMessenger.of(widget
+                                                .scaffoldKey.currentContext!)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                '$textFollow successfully'),
+                                          ),
+                                        );
+                                        await userProvider.refreshUser();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 10),
+                                        child: Row(
+                                          children: [
+                                            if (!user.following
+                                                .contains(widget.snap['uid']))
+                                              const Icon(
+                                                Icons.person_add_alt,
+                                                size: 22,
+                                              )
+                                            else
+                                              const Icon(
+                                                Icons
+                                                    .person_remove_alt_1_outlined,
+                                                size: 22,
+                                              ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(
+                                                    fontSize: 22),
+                                                children: [
+                                                  TextSpan(
+                                                      text: '$textFollow '),
+                                                  TextSpan(
+                                                    text:
+                                                        '@${widget.snap['username']}',
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      );
-                                      setState(() {});
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5, horizontal: 10),
-                                      child: const Row(
-                                        children: [
-                                          Icon(
-                                            Icons.delete_outline,
-                                            size: 22,
-                                            color: Colors.red,
+                                      ),
+                                    )
+                                  else
+                                    InkWell(
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        await FireStoreMethod().deletePost(
+                                            widget.snap['postId'],
+                                            widget.snap['postPhotoUrl']);
+                                        ScaffoldMessenger.of(widget
+                                                .scaffoldKey.currentContext!)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Delete post successfully'),
                                           ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          Text(
-                                            'Delete post',
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: Colors.red),
-                                          ),
-                                        ],
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5, horizontal: 10),
+                                        child: const Row(
+                                          children: [
+                                            Icon(
+                                              Icons.delete_outline,
+                                              size: 22,
+                                              color: Colors.red,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            Text(
+                                              'Delete post',
+                                              style: TextStyle(
+                                                  fontSize: 22,
+                                                  color: Colors.red),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               );
                             },
