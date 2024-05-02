@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:instagramz_flutter/models/post.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
+import 'package:instagramz_flutter/resources/auth_method.dart';
+import 'package:instagramz_flutter/views/login_view.dart';
 import 'package:instagramz_flutter/views/widgets/media_view.dart';
 import 'package:instagramz_flutter/views/widgets/post_view.dart';
 import 'package:instagramz_flutter/views/widgets/text_profile.dart';
@@ -42,6 +41,23 @@ class _ProfileViewState extends State<ProfileView>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
+        actions: [
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'Logout',
+                child: Text('Logout'),
+              )
+            ],
+            onSelected: (value) {
+              if (value == 'Logout') {
+                AuthMethod().logout();
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const LoginView()));
+              }
+            },
+          ),
+        ],
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance

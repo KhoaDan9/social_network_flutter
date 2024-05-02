@@ -62,7 +62,7 @@ class AuthMethod {
 
   Future<bool> loginUser(String email, String password) async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       print('Dang nhap thanh cong!');
       return true;
@@ -80,5 +80,9 @@ class AuthMethod {
       print(e);
       return false;
     }
+  }
+
+  Future<void> logout() async {
+    await FirebaseAuth.instance.signOut();
   }
 }
