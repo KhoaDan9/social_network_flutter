@@ -45,6 +45,11 @@ class _PostViewState extends State<PostView> {
     }
     return Container(
       padding: const EdgeInsets.fromLTRB(5, 4, 0, 4).copyWith(),
+      decoration: BoxDecoration(
+        border: Border.symmetric(
+          horizontal: BorderSide(width: 2, color: Colors.grey[850]!),
+        ),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
