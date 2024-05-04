@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
-import 'package:instagramz_flutter/utilities/navbar_select.dart';
+import 'package:instagramz_flutter/views/add_post_view.dart';
+import 'package:instagramz_flutter/views/feed_view.dart';
+import 'package:instagramz_flutter/views/profile_view.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -19,10 +19,20 @@ class _HomeViewState extends State<HomeView> {
   int _page = 0;
   late PageController pageController;
 
+  List<Widget> navSelection = [
+    const FeedView(),
+    const Text('Search'),
+    const AddPostView(),
+    const Text('Favorites'),
+    const ProfileView(uid: '')
+  ];
+
   @override
   void initState() {
     addData();
     pageController = PageController();
+    final user = FirebaseAuth.instance.currentUser;
+    navSelection[4] = ProfileView(uid: user!.uid);
     super.initState();
   }
 
@@ -49,7 +59,6 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    // model.User user = Provider.of<UserProvider>(context).getUser;
     return isLoading
         ? const Center(
             child: CircularProgressIndicator(),
@@ -58,7 +67,7 @@ class _HomeViewState extends State<HomeView> {
             body: PageView(
               controller: pageController,
               physics: const NeverScrollableScrollPhysics(),
-              children: navbarSelection,
+              children: navSelection,
             ),
             bottomNavigationBar: CupertinoTabBar(
               items: [
