@@ -1,7 +1,4 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/views/home_view.dart';

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/views/comment_view.dart';
+import 'package:instagramz_flutter/views/profile_view.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +35,19 @@ class _PostViewState extends State<PostView> {
     getCmtNum();
   }
 
+  viewProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return ProfileView(
+            uid: widget.snap['uid'],
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     model.User user = Provider.of<UserProvider>(context).getUser;
@@ -55,9 +70,12 @@ class _PostViewState extends State<PostView> {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 5),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage(widget.snap['userPhotoUrl']),
+            child: GestureDetector(
+              onTap: () => viewProfile(context),
+              child: CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(widget.snap['userPhotoUrl']),
+              ),
             ),
           ),
           Expanded(
@@ -72,11 +90,14 @@ class _PostViewState extends State<PostView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              widget.snap['username'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            GestureDetector(
+                              onTap: () => viewProfile(context),
+                              child: Text(
+                                widget.snap['username'],
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                             Padding(

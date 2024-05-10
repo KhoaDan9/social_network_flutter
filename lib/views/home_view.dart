@@ -18,21 +18,18 @@ class _HomeViewState extends State<HomeView> {
   bool isLoading = true;
   int _page = 0;
   late PageController pageController;
-
-  List<Widget> navSelection = [
+  List<Widget> navbarSelection = [
     const FeedView(),
     const Text('Search'),
     const AddPostView(),
     const Text('Favorites'),
-    const ProfileView(uid: '')
+    ProfileView(uid: FirebaseAuth.instance.currentUser!.uid)
   ];
 
   @override
   void initState() {
     addData();
     pageController = PageController();
-    final user = FirebaseAuth.instance.currentUser;
-    navSelection[4] = ProfileView(uid: user!.uid);
     super.initState();
   }
 
@@ -44,6 +41,7 @@ class _HomeViewState extends State<HomeView> {
 
   void addData() async {
     UserProvider userProvider = Provider.of(context, listen: false);
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {});
     await userProvider.refreshUser();
     setState(() {
       isLoading = false;
@@ -67,7 +65,7 @@ class _HomeViewState extends State<HomeView> {
             body: PageView(
               controller: pageController,
               physics: const NeverScrollableScrollPhysics(),
-              children: navSelection,
+              children: navbarSelection,
             ),
             bottomNavigationBar: CupertinoTabBar(
               items: [

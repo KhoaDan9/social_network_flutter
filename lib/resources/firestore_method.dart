@@ -149,4 +149,15 @@ class FireStoreMethod {
       print(e);
     }
   }
+
+  Future getUserDetailsByUid(String uid) async {
+    try {
+      final snap = await _firestore.collection('users').doc(uid).get();
+      if (snap.exists) {
+        return snap.data();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }
