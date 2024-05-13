@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 
@@ -33,14 +34,14 @@ class AuthMethod {
           .uploadImageToStorage('profilePics', image, false);
 
       model.User user = model.User(
-        username: username,
-        email: email,
-        uid: cred.user!.uid,
-        fullname: fullname,
-        followers: const [],
-        following: const [],
-        photoUrl: photoUrl,
-      );
+          username: username,
+          email: email,
+          uid: cred.user!.uid,
+          fullname: fullname,
+          followers: const [],
+          following: const [],
+          photoUrl: photoUrl,
+          bio: '');
 
       await _firestore.collection('users').doc(cred.user!.uid).set(
             user.toJson(),
@@ -84,5 +85,24 @@ class AuthMethod {
 
   Future<void> logout() async {
     await FirebaseAuth.instance.signOut();
+  }
+
+  Future<void> editProfile(
+      model.User user, String username, String bio, Uint8List? img) async {
+    if (img != null) {
+      String photoUrl = await StorageMethods()
+          .uploadImageToStorage('profilePics', img, false);
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'username': username, 'bio': bio, 'photoUrl': photoUrl});
+      await FirebaseStorage.instance.refFromURL(user.photoUrl).delete();
+    } else {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'username': username, 'bio': bio});
+    }
   }
 }
