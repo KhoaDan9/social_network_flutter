@@ -5,6 +5,7 @@ import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/views/add_post_view.dart';
 import 'package:instagramz_flutter/views/feed_view.dart';
 import 'package:instagramz_flutter/views/profile_view.dart';
+import 'package:instagramz_flutter/views/search_view.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HomeViewState extends State<HomeView> {
   late PageController pageController;
   List<Widget> navbarSelection = [
     const FeedView(),
-    const Text('Search'),
+    const SearchView(),
     const AddPostView(),
     const Text('Favorites'),
     ProfileView(uid: FirebaseAuth.instance.currentUser!.uid)

@@ -160,4 +160,15 @@ class FireStoreMethod {
       print(e);
     }
   }
+
+  Future searchUser(String text) async {
+    try {
+      final snap = await _firestore
+          .collection('users')
+          .where('username', isGreaterThanOrEqualTo: text)
+          .where('username', isLessThanOrEqualTo: text)
+          .get();
+      return snap;
+    } catch (e) {}
+  }
 }
