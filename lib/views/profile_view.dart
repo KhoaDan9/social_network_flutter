@@ -1,13 +1,15 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/user.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/views/edit_profile_view.dart';
 import 'package:instagramz_flutter/views/login_view.dart';
+import 'package:instagramz_flutter/views/message_view.dart';
 import 'package:instagramz_flutter/views/widgets/media_view.dart';
 import 'package:instagramz_flutter/views/widgets/post_view.dart';
 import 'package:instagramz_flutter/views/widgets/text_profile.dart';
@@ -26,16 +28,13 @@ class _ProfileViewState extends State<ProfileView>
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late final TabController _tabController;
-  // var data = {};
   bool isFollowing = false;
   var userAuth = FirebaseAuth.instance.currentUser!;
-  // var isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    // getData();
   }
 
   @override
@@ -181,49 +180,99 @@ class _ProfileViewState extends State<ProfileView>
                                                       color: Colors.white),
                                                 ),
                                               )
-                                            : OutlinedButton(
-                                                onPressed: () async {
-                                                  FireStoreMethod().followUser(
-                                                      user.uid,
-                                                      snapshot2.data!.docs[0]
-                                                          ["uid"],
-                                                      user.following);
-                                                  if (!context.mounted) return;
-                                                  Provider.of<UserProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .refreshUser();
-                                                },
-                                                style: snapshot2.data!
-                                                        .docs[0]["followers"]
-                                                        .contains(user.uid)
-                                                    ? ButtonStyle(
-                                                        backgroundColor:
-                                                            MaterialStateProperty
-                                                                .all(Colors
-                                                                    .black),
-                                                      )
-                                                    : ButtonStyle(
-                                                        backgroundColor:
-                                                            MaterialStateProperty
-                                                                .all(Colors
-                                                                    .white),
+                                            : Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: OutlinedButton(
+                                                      onPressed: () async {
+                                                        FireStoreMethod()
+                                                            .followUser(
+                                                                user.uid,
+                                                                snapshot2.data!
+                                                                        .docs[0]
+                                                                    ["uid"],
+                                                                user.following);
+                                                        if (!context.mounted) {
+                                                          return;
+                                                        }
+                                                        Provider.of<UserProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .refreshUser();
+                                                      },
+                                                      style: snapshot2
+                                                              .data!
+                                                              .docs[0]
+                                                                  ["followers"]
+                                                              .contains(
+                                                                  user.uid)
+                                                          ? ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStateProperty
+                                                                      .all(Colors
+                                                                          .black),
+                                                            )
+                                                          : ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStateProperty
+                                                                      .all(Colors
+                                                                          .white),
+                                                            ),
+                                                      child: snapshot2
+                                                              .data!
+                                                              .docs[0]
+                                                                  ["followers"]
+                                                              .contains(
+                                                                  user.uid)
+                                                          ? const Text(
+                                                              'Unfollow',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                            )
+                                                          : const Text(
+                                                              'Follow',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black),
+                                                            ),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () async {
+                                                      var sendToUser = snapshot2
+                                                          .data!.docs[0];
+
+                                                      String messageBoxId =
+                                                          await FireStoreMethod()
+                                                              .checkMessage(
+                                                        user.uid,
+                                                        sendToUser['uid'],
+                                                      );
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) {
+                                                            return MessageView(
+                                                              user: sendToUser,
+                                                              messageBoxId:
+                                                                  messageBoxId,
+                                                            );
+                                                          },
+                                                        ),
+                                                      );
+                                                    },
+                                                    icon: Transform(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      transform:
+                                                          Matrix4.rotationY(pi),
+                                                      child: const Icon(
+                                                        Icons.message,
                                                       ),
-                                                child: snapshot2.data!
-                                                        .docs[0]["followers"]
-                                                        .contains(user.uid)
-                                                    ? const Text(
-                                                        'Unfollow',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white),
-                                                      )
-                                                    : const Text(
-                                                        'Follow',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.black),
-                                                      ),
+                                                    ),
+                                                  )
+                                                ],
                                               ),
                                       ),
                                     )

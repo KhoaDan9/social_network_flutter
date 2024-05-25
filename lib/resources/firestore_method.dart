@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:instagramz_flutter/models/comment.dart';
+import 'package:instagramz_flutter/models/message.dart';
+import 'package:instagramz_flutter/models/messagebox.dart';
 import 'package:instagramz_flutter/models/post.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
@@ -169,6 +171,60 @@ class FireStoreMethod {
           .where('username', isLessThanOrEqualTo: text)
           .get();
       return snap;
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<String> checkMessage(String userId, String uid) async {
+    try {
+      String uidMessageBox1 = "${userId}_$uid";
+      String uidMessageBox2 = "${uid}_$userId";
+
+      var box = await _firestore
+          .collection("messageBox")
+          .where('userId', whereIn: [uidMessageBox1, uidMessageBox2]).get();
+
+      if (box.docs.isEmpty) {
+        String messageBoxId = const Uuid().v1();
+
+        MessageBox msBox = MessageBox(
+          messageBoxId: messageBoxId,
+          userId: uidMessageBox1,
+          lastMessageTime: "",
+          lastMessage: "",
+          datePublished: DateTime.now(),
+        );
+
+        await _firestore
+            .collection('messageBox')
+            .doc(messageBoxId)
+            .set(msBox.toJson());
+        return uidMessageBox1;
+      } else {
+        return box.docs[0].data()['userId'];
+      }
+    } catch (e) {
+      print(e);
+      return (e.toString());
+    }
+  }
+
+  Future<void> storeMessage(
+      String content, String messageBoxId, String formUid) async {
+    try {
+      String messageId = const Uuid().v1();
+      Message mes = Message(
+        messageId: messageId,
+        messageBoxId: messageBoxId,
+        content: content,
+        fromUid: formUid,
+        dateSend: DateTime.now(),
+      );
+
+      await _firestore.collection('message').doc(messageId).set(mes.toJson());
+    } catch (e) {
+      print(e);
+    }
   }
 }
