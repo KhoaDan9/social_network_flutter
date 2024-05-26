@@ -5,9 +5,10 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:instagramz_flutter/models/message.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:intl/intl.dart';
+import 'package:instagramz_flutter/models/user.dart' as model;
 
 class MessageView extends StatefulWidget {
-  final user;
+  final model.User user;
   final String messageBoxId;
   const MessageView({
     super.key,
@@ -47,14 +48,14 @@ class _MessageViewState extends State<MessageView> {
             CircleAvatar(
               radius: 20,
               backgroundImage: NetworkImage(
-                widget.user['photoUrl'],
+                widget.user.photoUrl,
               ),
             ),
             const SizedBox(
               width: 12,
             ),
             Text(
-              widget.user['username'],
+              widget.user.username,
               style: const TextStyle(fontSize: 22),
             )
           ],
@@ -114,7 +115,7 @@ class _MessageViewState extends State<MessageView> {
                           ),
                         ),
                         itemBuilder: (context, message) => Align(
-                          alignment: message.fromUid == widget.user['uid']
+                          alignment: message.fromUid == widget.user.uid
                               ? Alignment.bottomLeft
                               : Alignment.bottomRight,
                           child: Container(
@@ -123,13 +124,13 @@ class _MessageViewState extends State<MessageView> {
                             ),
                             child: Column(
                               crossAxisAlignment:
-                                  message.fromUid == widget.user['uid']
+                                  message.fromUid == widget.user.uid
                                       ? CrossAxisAlignment.start
                                       : CrossAxisAlignment.end,
                               children: [
                                 Card(
                                   elevation: 4,
-                                  color: message.fromUid == widget.user['uid']
+                                  color: message.fromUid == widget.user.uid
                                       ? Colors.transparent
                                       : Colors.blue,
                                   child: Padding(

@@ -186,19 +186,17 @@ class FireStoreMethod {
           .where('userId', whereIn: [uidMessageBox1, uidMessageBox2]).get();
 
       if (box.docs.isEmpty) {
-        String messageBoxId = const Uuid().v1();
-
         MessageBox msBox = MessageBox(
-          messageBoxId: messageBoxId,
-          userId: uidMessageBox1,
-          lastMessageTime: "",
+          messageBoxId: uidMessageBox1,
+          arrUid: [userId, uid],
+          lastMessageTime: DateTime.now(),
           lastMessage: "",
-          datePublished: DateTime.now(),
+          lastMessageBy: "",
         );
 
         await _firestore
             .collection('messageBox')
-            .doc(messageBoxId)
+            .doc(uidMessageBox1)
             .set(msBox.toJson());
         return uidMessageBox1;
       } else {
@@ -211,18 +209,27 @@ class FireStoreMethod {
   }
 
   Future<void> storeMessage(
-      String content, String messageBoxId, String formUid) async {
+      String content, String messageBoxId, String fromUid) async {
     try {
       String messageId = const Uuid().v1();
       Message mes = Message(
         messageId: messageId,
         messageBoxId: messageBoxId,
         content: content,
-        fromUid: formUid,
+        fromUid: fromUid,
         dateSend: DateTime.now(),
       );
 
       await _firestore.collection('message').doc(messageId).set(mes.toJson());
+
+      await FirebaseFirestore.instance
+          .collection('messageBox')
+          .doc(messageBoxId)
+          .update({
+        'lastMessage': content,
+        'lastMessageBy': fromUid,
+        'lastMessageTime': DateTime.now()
+      });
     } catch (e) {
       print(e);
     }

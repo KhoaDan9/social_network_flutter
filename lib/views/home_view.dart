@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/views/add_post_view.dart';
+import 'package:instagramz_flutter/views/all_message_view.dart';
 import 'package:instagramz_flutter/views/feed_view.dart';
 import 'package:instagramz_flutter/views/message_view.dart';
 import 'package:instagramz_flutter/views/profile_view.dart';
@@ -24,7 +25,7 @@ class _HomeViewState extends State<HomeView> {
     const FeedView(),
     const SearchView(),
     const AddPostView(),
-    const Text('123'),
+    const AllMessageView(),
     ProfileView(uid: FirebaseAuth.instance.currentUser!.uid)
   ];
 
@@ -94,7 +95,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
-                    Icons.favorite,
+                    Icons.comment,
                     color: _page == 3 ? Colors.white : Colors.grey,
                   ),
                   label: '',

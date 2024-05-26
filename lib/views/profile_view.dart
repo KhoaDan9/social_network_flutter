@@ -240,14 +240,16 @@ class _ProfileViewState extends State<ProfileView>
                                                   ),
                                                   IconButton(
                                                     onPressed: () async {
-                                                      var sendToUser = snapshot2
-                                                          .data!.docs[0];
+                                                      final sendToUser =
+                                                          model.User.fromsnap(
+                                                              snapshot2.data!
+                                                                  .docs[0]);
 
                                                       String messageBoxId =
                                                           await FireStoreMethod()
                                                               .checkMessage(
                                                         user.uid,
-                                                        sendToUser['uid'],
+                                                        sendToUser.uid,
                                                       );
                                                       Navigator.push(
                                                         context,
