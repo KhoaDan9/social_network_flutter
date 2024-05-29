@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
+import 'package:instagramz_flutter/utilities/constants.dart';
 import 'package:instagramz_flutter/views/home_view.dart';
 import 'package:instagramz_flutter/views/register_view.dart';
 
@@ -38,10 +39,8 @@ class _LoginViewState extends State<LoginView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                'assets/images/image/rata_logo.svg',
-                colorFilter:
-                    const ColorFilter.mode(Colors.white, BlendMode.color),
+              Image(
+                image: AssetImage(logoImg2),
                 height: 64,
               ),
               const SizedBox(
