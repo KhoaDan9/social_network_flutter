@@ -43,9 +43,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void addData() async {
-    UserProvider userProvider = Provider.of(context, listen: false);
     FirebaseAuth.instance.authStateChanges().listen((User? user) {});
-    await userProvider.refreshUser();
     setState(() {
       isLoading = false;
     });
@@ -77,35 +75,30 @@ class _HomeViewState extends State<HomeView> {
                     Icons.home,
                     color: _page == 0 ? Colors.white : Colors.grey,
                   ),
-                  label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
                     Icons.search,
                     color: _page == 1 ? Colors.white : Colors.grey,
                   ),
-                  label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
                     Icons.add_circle_outline,
                     color: _page == 2 ? Colors.white : Colors.grey,
                   ),
-                  label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
                     Icons.comment,
                     color: _page == 3 ? Colors.white : Colors.grey,
                   ),
-                  label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(
                     Icons.person,
                     color: _page == 4 ? Colors.white : Colors.grey,
                   ),
-                  label: '',
                 )
               ],
               onTap: navigatorOnClick,

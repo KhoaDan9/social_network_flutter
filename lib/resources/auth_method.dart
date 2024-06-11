@@ -4,19 +4,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
-import 'package:instagramz_flutter/models/user.dart' as model;
+import 'package:instagramz_flutter/models/user_model.dart';
 
 class AuthMethod {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<model.User> getUserDetails() async {
+  Future<UserModel> getUserDetails() async {
     User currentUser = _auth.currentUser!;
 
     DocumentSnapshot snapshot =
         await _firestore.collection('users').doc(currentUser.uid).get();
 
-    return model.User.fromsnap(snapshot);
+    return UserModel.fromsnap(snapshot);
   }
 
   Future<void> registerUser({
@@ -27,13 +27,17 @@ class AuthMethod {
     required Uint8List image,
   }) async {
     try {
-      UserCredential cred = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      if (image.length == Uint8List.fromList([1, 2, 3, 4, 5]).length) {
+        throw Exception("Please select a image");
+      }
 
       String photoUrl = await StorageMethods()
           .uploadImageToStorage('profilePics', image, false);
 
-      model.User user = model.User(
+      UserCredential cred = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
+      UserModel user = UserModel(
           username: username,
           email: email,
           uid: cred.user!.uid,
@@ -47,39 +51,42 @@ class AuthMethod {
             user.toJson(),
           );
     } on FirebaseException catch (e) {
-      if (e.code == 'invalid-email') {
-        print('Please input your email');
-      }
-      if (e.code == 'weak-password') {
-        print('Password should be at least 6 characters');
-      }
-      print('Auth error');
-      print(e);
+      // if (e.code == 'invalid-email') {
+      //   print('Please input your email');
+      // }
+      // if (e.code == 'weak-password') {
+      //   print('Password should be at least 6 characters');
+      // }
+      // print('Auth error');
+      // print(e);
+      rethrow;
     } catch (e) {
-      print('error');
-      print(e);
+      // print('error');
+      // print(e);
+      rethrow;
     }
   }
 
-  Future<bool> loginUser(String email, String password) async {
+  Future<UserModel> loginUser(String email, String password) async {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      print('Dang nhap thanh cong!');
-      return true;
+      UserModel user = await getUserDetails();
+
+      return user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      } else {
-        print(e);
-        print(e.code);
-      }
-      return false;
+      // if (e.code == 'user-not-found') {
+      //   print('No user found for that email.');
+      // } else if (e.code == 'wrong-password') {
+      //   print('Wrong password provided for that user.');
+      // } else {
+      //   print(e);
+      //   print(e.code);
+      // }
+      rethrow;
     } catch (e) {
-      print(e);
-      return false;
+      // print(e);
+      rethrow;
     }
   }
 
@@ -88,7 +95,7 @@ class AuthMethod {
   }
 
   Future<void> editProfile(
-      model.User user, String username, String bio, Uint8List? img) async {
+      UserModel user, String username, String bio, Uint8List? img) async {
     if (img != null) {
       String photoUrl = await StorageMethods()
           .uploadImageToStorage('profilePics', img, false);

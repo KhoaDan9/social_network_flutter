@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:instagramz_flutter/models/messagebox.dart';
-import 'package:instagramz_flutter/models/user.dart';
+import 'package:instagramz_flutter/models/user_model.dart';
 import 'package:instagramz_flutter/views/message_view.dart';
 import 'package:intl/intl.dart';
 
@@ -33,7 +33,7 @@ class _MessageDetailState extends State<MessageDetail> {
           );
         }
 
-        final User user = User.fromsnap(snapshot.data!);
+        final UserModel user = UserModel.fromsnap(snapshot.data!);
 
         var msg = widget.msgBox.lastMessage;
         if (widget.msgBox.lastMessageBy != user.uid) {

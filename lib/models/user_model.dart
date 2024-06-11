@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class User {
+class UserModel {
   final String username;
   final String uid;
   final String email;
@@ -16,7 +16,7 @@ class User {
     return username;
   }
 
-  const User(
+  const UserModel(
       {required this.username,
       required this.uid,
       required this.email,
@@ -37,9 +37,9 @@ class User {
         "bio": bio,
       };
 
-  static User fromsnap(DocumentSnapshot snap) {
+  static UserModel fromsnap(DocumentSnapshot snap) {
     final snapshot = snap.data() as Map<String, dynamic>;
-    return User(
+    return UserModel(
       username: snapshot['username'],
       uid: snapshot['uid'],
       email: snapshot['email'],

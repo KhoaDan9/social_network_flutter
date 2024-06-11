@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:instagramz_flutter/models/user.dart' as model;
+import 'package:instagramz_flutter/models/user_model.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
@@ -35,7 +35,7 @@ class _CommentViewState extends State<CommentView> {
 
   @override
   Widget build(BuildContext context) {
-    model.User user = Provider.of<UserProvider>(context).getUser;
+    // model.UserModel user = Provider.of<UserProvider>(context).getUser;
 
     return StreamBuilder(
         stream: FirebaseFirestore.instance
@@ -133,11 +133,12 @@ class _CommentViewState extends State<CommentView> {
                                       LikeAnimationView(
                                         isAnimating: snapshot
                                             .data!.docs[index]['likes']
-                                            .contains(user.uid),
+                                            .contains('user.uid'),
+                                        // .contains(user.uid),
                                         smallLike: true,
                                         child: IconButton(
                                           icon: cmtData['likes']
-                                                  .contains(user.uid)
+                                                  .contains('user.uid')
                                               ? const Icon(
                                                   Icons.favorite,
                                                   color: Colors.red,
@@ -145,11 +146,11 @@ class _CommentViewState extends State<CommentView> {
                                               : const Icon(
                                                   Icons.favorite_border),
                                           onPressed: () async {
-                                            await FireStoreMethod().likeComment(
-                                              cmtData['commentId'],
-                                              user.uid,
-                                              cmtData['likes'],
-                                            );
+                                            // await FireStoreMethod().likeComment(
+                                            //   cmtData['commentId'],
+                                            //   user.uid,
+                                            //   cmtData['likes'],
+                                            // );
                                           },
                                         ),
                                       ),

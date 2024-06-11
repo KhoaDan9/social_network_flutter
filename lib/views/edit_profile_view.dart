@@ -2,14 +2,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:instagramz_flutter/models/user.dart' as model;
+import 'package:instagramz_flutter/models/user_model.dart' as model;
 import 'package:instagramz_flutter/providers/user_provider.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/utilities/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class EditProfileView extends StatefulWidget {
-  final model.User user;
+  final model.UserModel user;
 
   const EditProfileView({super.key, required this.user});
 
@@ -149,8 +149,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                         await AuthMethod().editProfile(
                             widget.user, _username.text, _bio.text, _image);
                         if (!context.mounted) return;
-                        Provider.of<UserProvider>(context, listen: false)
-                            .refreshUser();
+                        // Provider.of<UserProvider>(context, listen: false)
+                        //     .refreshUser();
                         Navigator.pop(context);
                       },
                       child: const Text(
