@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:instagramz_flutter/models/post_model.dart';
 import 'package:instagramz_flutter/views/widgets/list_user_view.dart';
 import 'package:instagramz_flutter/views/widgets/post_view.dart';
 
@@ -82,7 +83,7 @@ class _SearchViewState extends State<SearchView>
             .toString()
             .toLowerCase()
             .contains(_searchController.text.toLowerCase())) {
-          postsResult.add(post);
+          postsResult.add(PostModel.fromsnap(post));
         }
       }
     } else {
