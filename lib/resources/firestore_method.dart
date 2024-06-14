@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:instagramz_flutter/models/comment.dart';
 import 'package:instagramz_flutter/models/message.dart';
 import 'package:instagramz_flutter/models/messagebox.dart';
-import 'package:instagramz_flutter/models/post.dart';
+import 'package:instagramz_flutter/models/post_model.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
 import 'package:uuid/uuid.dart';
@@ -18,6 +18,10 @@ class FireStoreMethod {
     String description,
   ) async {
     try {
+      if (description == '' && file == null) {
+        throw Exception("Input required");
+      }
+
       String photoUrl;
       final user = await AuthMethod().getUserDetails();
       if (file != null) {
@@ -28,7 +32,7 @@ class FireStoreMethod {
       }
 
       String postId = const Uuid().v1();
-      Post post = Post(
+      PostModel post = PostModel(
         postId: postId,
         uid: user.uid,
         description: description,
@@ -41,7 +45,41 @@ class FireStoreMethod {
 
       await _firestore.collection('posts').doc(post.postId).set(post.toJson());
     } catch (e) {
-      print(e);
+      // print(e);
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getStreamAllPosts() {
+    try {
+      return _firestore
+          .collection('posts')
+          .orderBy('datePublished', descending: true)
+          .snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // QuerySnapshot querySnapshot = await _firestore
+  //         .collection('posts')
+  //         .orderBy('datePublished', descending: true)
+  //         .get();
+  //     return querySnapshot.docs.map((doc) => PostModel.fromsnap(doc)).toList();
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getStreamProfilePosts(
+      String uid) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: uid)
+          .orderBy(
+            'datePublished',
+            descending: true,
+          )
+          .snapshots();
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -57,7 +95,8 @@ class FireStoreMethod {
         });
       }
     } catch (e) {
-      print(e);
+      // print(e);
+      rethrow;
     }
   }
 
@@ -82,6 +121,7 @@ class FireStoreMethod {
       }
     } catch (e) {
       print(e);
+      rethrow;
     }
   }
 
@@ -130,7 +170,7 @@ class FireStoreMethod {
     }
   }
 
-  Future<void> followUser(String userId, String uid, List following) async {
+  Future<String> followUser(String userId, String uid, List following) async {
     try {
       if (following.contains(uid)) {
         await _firestore.collection('users').doc(userId).update({
@@ -139,6 +179,7 @@ class FireStoreMethod {
         await _firestore.collection('users').doc(uid).update({
           'followers': FieldValue.arrayRemove([userId])
         });
+        return "Unfollow successfully";
       } else {
         await _firestore.collection('users').doc(userId).update({
           'following': FieldValue.arrayUnion([uid]),
@@ -146,9 +187,11 @@ class FireStoreMethod {
         await _firestore.collection('users').doc(uid).update({
           'followers': FieldValue.arrayUnion([userId])
         });
+        return "Follow successfully";
       }
     } catch (e) {
       print(e);
+      return (e.toString());
     }
   }
 

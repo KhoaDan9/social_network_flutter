@@ -6,7 +6,7 @@ import 'package:instagramz_flutter/features/auth/login/bloc/login_state.dart';
 import 'package:instagramz_flutter/features/home/bloc/home_bloc.dart';
 import 'package:instagramz_flutter/features/home/bloc/home_event.dart';
 import 'package:instagramz_flutter/utilities/constants.dart';
-import 'package:instagramz_flutter/views/home_view.dart';
+import 'package:instagramz_flutter/features/home/home_view.dart';
 import 'package:instagramz_flutter/features/auth/register/register_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -39,6 +39,9 @@ class _LoginViewState extends State<LoginView> {
 
     if (state is LoginSuccess) {
       homeBloc.add(SetUser(user: state.user));
+      homeBloc.add(const PageTapped(
+        pageIndex: 0,
+      ));
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeView()));
     }

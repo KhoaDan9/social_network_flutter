@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class Post {
+class PostModel {
   final String postId;
   final String uid;
   final String description;
@@ -12,7 +12,7 @@ class Post {
   final String postPhotoUrl;
   final String userPhotoUrl;
 
-  const Post({
+  const PostModel({
     required this.postId,
     required this.uid,
     required this.description,
@@ -34,15 +34,16 @@ class Post {
         "userPhotoUrl": userPhotoUrl
       };
 
-  static Post fromsnap(DocumentSnapshot snap) {
+  static PostModel fromsnap(DocumentSnapshot snap) {
     final snapshot = snap.data() as Map<String, dynamic>;
-    return Post(
+    Timestamp timestamp = snapshot['datePublished'];
+    return PostModel(
       postId: snapshot['postId'],
       uid: snapshot['uid'],
       username: snapshot['username'],
       description: snapshot['description'],
       likes: snapshot['likes'],
-      datePublished: snapshot['datePublished'],
+      datePublished: DateTime.parse(timestamp.toDate().toString()),
       postPhotoUrl: snapshot['postPhotoUrl'],
       userPhotoUrl: snapshot['userPhotoUrl'],
     );

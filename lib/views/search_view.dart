@@ -163,7 +163,7 @@ class _SearchViewState extends State<SearchView>
                     itemCount: _searchPostsResult.length,
                     itemBuilder: (context, index) {
                       return PostView(
-                        snap: _searchPostsResult[index],
+                        post: _searchPostsResult[index],
                         scaffoldKey: _scaffoldKey,
                       );
                     },
