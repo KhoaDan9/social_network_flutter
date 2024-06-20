@@ -6,6 +6,7 @@ import 'package:instagramz_flutter/features/home/feed/bloc/feed_state.dart';
 import 'package:instagramz_flutter/models/post_model.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/utilities/constants.dart';
+import 'package:instagramz_flutter/views/random_meal.dart';
 import 'package:instagramz_flutter/views/widgets/post_view.dart';
 
 class FeedView extends StatefulWidget {
@@ -46,8 +47,17 @@ class _FeedViewState extends State<FeedView> {
                   centerTitle: false,
                   actions: [
                     IconButton(
-                      onPressed: () async {},
-                      icon: const Icon(Icons.chat_bubble_outline),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return const RanndomMealView();
+                            },
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.food_bank_rounded),
                     )
                   ],
                 ),
