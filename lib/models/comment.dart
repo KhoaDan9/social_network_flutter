@@ -36,6 +36,7 @@ class Comment {
 
   static Comment fromsnap(DocumentSnapshot snap) {
     final snapshot = snap.data() as Map<String, dynamic>;
+    final Timestamp timestamp = snapshot['datePublished'];
     return Comment(
       commentId: snapshot['commentId'],
       postId: snapshot['postId'],
@@ -43,7 +44,7 @@ class Comment {
       username: snapshot['username'],
       content: snapshot['content'],
       likes: snapshot['likes'],
-      datePublished: snapshot['datePublished'],
+      datePublished: DateTime.parse(timestamp.toDate().toString()),
       userPhotoUrl: snapshot['userPhotoUrl'],
     );
   }

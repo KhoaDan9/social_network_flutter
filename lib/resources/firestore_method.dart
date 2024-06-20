@@ -125,9 +125,25 @@ class FireStoreMethod {
     }
   }
 
-  Future<void> storeComment(String postId, String content) async {
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCommentByPostId(
+      String postId) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('comments')
+          .where('postId', isEqualTo: postId)
+          .orderBy('datePublished', descending: true)
+          .snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> storeComment(String postId, String content) async {
     try {
       final user = await AuthMethod().getUserDetails();
+      if (content.isEmpty) {
+        return false;
+      }
       String commentId = const Uuid().v1();
       Comment cmt = Comment(
         commentId: commentId,
@@ -140,8 +156,10 @@ class FireStoreMethod {
         datePublished: DateTime.now(),
       );
       await _firestore.collection('comments').doc(commentId).set(cmt.toJson());
+      return true;
     } catch (e) {
       print(e);
+      rethrow;
     }
   }
 

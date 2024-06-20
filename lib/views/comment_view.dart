@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:instagramz_flutter/models/user_model.dart' as model;
-import 'package:instagramz_flutter/providers/user_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagramz_flutter/features/home/bloc/home_bloc.dart';
+import 'package:instagramz_flutter/models/comment.dart';
+import 'package:instagramz_flutter/models/user_model.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/views/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 class CommentView extends StatefulWidget {
   final String postId;
@@ -35,21 +35,19 @@ class _CommentViewState extends State<CommentView> {
 
   @override
   Widget build(BuildContext context) {
-    // model.UserModel user = Provider.of<UserProvider>(context).getUser;
+    HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
+    UserModel user = homeBloc.state.user!;
 
     return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('comments')
-            .where('postId', isEqualTo: widget.postId)
-            .orderBy('datePublished', descending: true)
-            .snapshots(),
+        stream: FireStoreMethod().getCommentByPostId(widget.postId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: CircularProgressIndicator(),
             );
           }
-
+          List<Comment> comments =
+              snapshot.data!.docs.map((e) => Comment.fromsnap(e)).toList();
           return GestureDetector(
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
@@ -61,9 +59,22 @@ class _CommentViewState extends State<CommentView> {
                 actions: [
                   TextButton(
                     onPressed: () async {
-                      await FireStoreMethod()
+                      final isSuccess = await FireStoreMethod()
                           .storeComment(widget.postId, _textController.text);
                       _textController.text = '';
+                      if (isSuccess) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Comment successfully!"),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please input something!"),
+                          ),
+                        );
+                      }
                     },
                     child: const Text(
                       'Reply',
@@ -81,11 +92,9 @@ class _CommentViewState extends State<CommentView> {
                       child: ListView.builder(
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
-                        itemCount: snapshot.data!.docs.length,
+                        itemCount: comments.length,
                         itemBuilder: ((context, index) {
-                          QueryDocumentSnapshot<Map<String, dynamic>> cmtData =
-                              snapshot.data!.docs[index];
-
+                          Comment cmtData = comments[index];
                           return Card(
                             color: Colors.blueGrey[600],
                             child: Container(
@@ -98,7 +107,7 @@ class _CommentViewState extends State<CommentView> {
                                     child: CircleAvatar(
                                       radius: 20,
                                       backgroundImage:
-                                          NetworkImage(cmtData['userPhotoUrl']),
+                                          NetworkImage(cmtData.userPhotoUrl),
                                     ),
                                   ),
                                   Expanded(
@@ -107,21 +116,20 @@ class _CommentViewState extends State<CommentView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          cmtData['username'],
+                                          cmtData.username,
                                           style: const TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          cmtData['content'],
+                                          cmtData.content,
                                           style: const TextStyle(fontSize: 16),
                                         ),
                                         Text(
-                                          DateFormat.jm().add_yMMMMd().format(
-                                              snapshot.data!
-                                                  .docs[index]['datePublished']
-                                                  .toDate()),
+                                          DateFormat.jm()
+                                              .add_yMMMMd()
+                                              .format(cmtData.datePublished),
                                           style: const TextStyle(
                                               fontWeight: FontWeight.w300),
                                         ),
@@ -131,14 +139,11 @@ class _CommentViewState extends State<CommentView> {
                                   Column(
                                     children: [
                                       LikeAnimationView(
-                                        isAnimating: snapshot
-                                            .data!.docs[index]['likes']
-                                            .contains('user.uid'),
-                                        // .contains(user.uid),
+                                        isAnimating:
+                                            cmtData.likes.contains(user.uid),
                                         smallLike: true,
                                         child: IconButton(
-                                          icon: cmtData['likes']
-                                                  .contains('user.uid')
+                                          icon: cmtData.likes.contains(user.uid)
                                               ? const Icon(
                                                   Icons.favorite,
                                                   color: Colors.red,
@@ -146,16 +151,16 @@ class _CommentViewState extends State<CommentView> {
                                               : const Icon(
                                                   Icons.favorite_border),
                                           onPressed: () async {
-                                            // await FireStoreMethod().likeComment(
-                                            //   cmtData['commentId'],
-                                            //   user.uid,
-                                            //   cmtData['likes'],
-                                            // );
+                                            await FireStoreMethod().likeComment(
+                                              cmtData.commentId,
+                                              user.uid,
+                                              cmtData.likes,
+                                            );
                                           },
                                         ),
                                       ),
-                                      if (cmtData['likes'].length != 0)
-                                        Text('${cmtData['likes'].length}'),
+                                      if (cmtData.likes.isNotEmpty)
+                                        Text('${cmtData.likes.length}'),
                                     ],
                                   ),
                                 ],
