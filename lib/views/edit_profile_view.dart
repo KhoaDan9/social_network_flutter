@@ -1,15 +1,17 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:instagramz_flutter/models/user_model.dart' as model;
-import 'package:instagramz_flutter/providers/user_provider.dart';
+import 'package:instagramz_flutter/features/home/bloc/home_bloc.dart';
+import 'package:instagramz_flutter/features/home/bloc/home_event.dart';
+import 'package:instagramz_flutter/models/user_model.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
+import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:instagramz_flutter/utilities/image_picker.dart';
-import 'package:provider/provider.dart';
 
 class EditProfileView extends StatefulWidget {
-  final model.UserModel user;
+  final UserModel user;
 
   const EditProfileView({super.key, required this.user});
 
@@ -148,9 +150,13 @@ class _EditProfileViewState extends State<EditProfileView> {
                       onPressed: () async {
                         await AuthMethod().editProfile(
                             widget.user, _username.text, _bio.text, _image);
-                        if (!context.mounted) return;
-                        // Provider.of<UserProvider>(context, listen: false)
-                        //     .refreshUser();
+                        final UserModel userUpdate = await FireStoreMethod()
+                            .getUserDetailsByUid(widget.user.uid);
+                        HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
+                        homeBloc.add(SetUser(user: userUpdate));
+                        homeBloc.add(const PageTapped(
+                          pageIndex: 4,
+                        ));
                         Navigator.pop(context);
                       },
                       child: const Text(

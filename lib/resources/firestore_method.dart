@@ -6,6 +6,7 @@ import 'package:instagramz_flutter/models/comment.dart';
 import 'package:instagramz_flutter/models/message.dart';
 import 'package:instagramz_flutter/models/messagebox.dart';
 import 'package:instagramz_flutter/models/post_model.dart';
+import 'package:instagramz_flutter/models/user_model.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
 import 'package:instagramz_flutter/resources/storage_method.dart';
 import 'package:uuid/uuid.dart';
@@ -213,14 +214,13 @@ class FireStoreMethod {
     }
   }
 
-  Future getUserDetailsByUid(String uid) async {
+  Future<UserModel> getUserDetailsByUid(String uid) async {
     try {
       final snap = await _firestore.collection('users').doc(uid).get();
-      if (snap.exists) {
-        return snap.data();
-      }
+      return UserModel.fromsnap(snap);
     } catch (e) {
       print(e);
+      rethrow;
     }
   }
 
