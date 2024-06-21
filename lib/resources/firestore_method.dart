@@ -14,42 +14,7 @@ import 'package:uuid/uuid.dart';
 class FireStoreMethod {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> uploadPost(
-    Uint8List? file,
-    String description,
-  ) async {
-    try {
-      if (description == '' && file == null) {
-        throw Exception("Input required");
-      }
-
-      String photoUrl;
-      final user = await AuthMethod().getUserDetails();
-      if (file != null) {
-        photoUrl = await StorageMethods()
-            .uploadImageToStorage('posts/${user.uid}', file, true);
-      } else {
-        photoUrl = "";
-      }
-
-      String postId = const Uuid().v1();
-      PostModel post = PostModel(
-        postId: postId,
-        uid: user.uid,
-        description: description,
-        username: user.username,
-        likes: const [],
-        datePublished: DateTime.now(),
-        postPhotoUrl: photoUrl,
-        userPhotoUrl: user.photoUrl,
-      );
-
-      await _firestore.collection('posts').doc(post.postId).set(post.toJson());
-    } catch (e) {
-      // print(e);
-      rethrow;
-    }
-  }
+  //Stream methods
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getStreamAllPosts() {
     try {
@@ -83,6 +48,72 @@ class FireStoreMethod {
     try {
       return _firestore.collection('users').doc(uid).snapshots();
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getStreamMessageByMessageBox(
+      String msgBoxId) {
+    try {
+      return _firestore
+          .collection('message')
+          .where('messageBoxId', isEqualTo: msgBoxId)
+          .orderBy('dateSend', descending: false)
+          .snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCommentByPostId(
+      String postId) {
+    try {
+      return FirebaseFirestore.instance
+          .collection('comments')
+          .where('postId', isEqualTo: postId)
+          .orderBy('datePublished', descending: true)
+          .snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  //Future method
+
+  //Post method
+  Future<void> uploadPost(
+    Uint8List? file,
+    String description,
+  ) async {
+    try {
+      if (description == '' && file == null) {
+        throw Exception("Input required");
+      }
+
+      String photoUrl;
+      final user = await AuthMethod().getUserDetails();
+      if (file != null) {
+        photoUrl = await StorageMethods()
+            .uploadImageToStorage('posts/${user.uid}', file, true);
+      } else {
+        photoUrl = "";
+      }
+
+      String postId = const Uuid().v1();
+      PostModel post = PostModel(
+        postId: postId,
+        uid: user.uid,
+        description: description,
+        username: user.username,
+        likes: const [],
+        datePublished: DateTime.now(),
+        postPhotoUrl: photoUrl,
+        userPhotoUrl: user.photoUrl,
+      );
+
+      await _firestore.collection('posts').doc(post.postId).set(post.toJson());
+    } catch (e) {
+      // print(e);
       rethrow;
     }
   }
@@ -129,19 +160,7 @@ class FireStoreMethod {
     }
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> getCommentByPostId(
-      String postId) {
-    try {
-      return FirebaseFirestore.instance
-          .collection('comments')
-          .where('postId', isEqualTo: postId)
-          .orderBy('datePublished', descending: true)
-          .snapshots();
-    } catch (e) {
-      rethrow;
-    }
-  }
-
+  //Comment method
   Future<bool> storeComment(String postId, String content) async {
     try {
       final user = await AuthMethod().getUserDetails();
@@ -192,6 +211,7 @@ class FireStoreMethod {
     }
   }
 
+  //User methods
   Future<String> followUser(String userId, String uid) async {
     try {
       final UserModel userUid = await getUserByUid(uid);
@@ -241,14 +261,14 @@ class FireStoreMethod {
     }
   }
 
+  //Message Methods
   Future<String> checkMessage(String userId, String uid) async {
     try {
       String uidMessageBox1 = "${userId}_$uid";
       String uidMessageBox2 = "${uid}_$userId";
 
-      var box = await _firestore
-          .collection("messageBox")
-          .where('userId', whereIn: [uidMessageBox1, uidMessageBox2]).get();
+      var box = await _firestore.collection("messageBox").where('messageBoxId',
+          whereIn: [uidMessageBox1, uidMessageBox2]).get();
 
       if (box.docs.isEmpty) {
         MessageBox msBox = MessageBox(
@@ -258,14 +278,13 @@ class FireStoreMethod {
           lastMessage: "",
           lastMessageBy: "",
         );
-
         await _firestore
             .collection('messageBox')
             .doc(uidMessageBox1)
             .set(msBox.toJson());
         return uidMessageBox1;
       } else {
-        return box.docs[0].data()['userId'];
+        return box.docs[0]['messageBoxId'];
       }
     } catch (e) {
       print(e);

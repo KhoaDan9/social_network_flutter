@@ -69,11 +69,8 @@ class _MessageViewState extends State<MessageView> {
           children: [
             Expanded(
               child: StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('message')
-                      .where('messageBoxId', isEqualTo: widget.messageBoxId)
-                      .orderBy('dateSend', descending: false)
-                      .snapshots(),
+                  stream: FireStoreMethod()
+                      .getStreamMessageByMessageBox(widget.messageBoxId),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return Container();
