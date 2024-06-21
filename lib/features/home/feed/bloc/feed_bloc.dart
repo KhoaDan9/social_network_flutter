@@ -22,8 +22,8 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
 
     on<FollowOnClickEvent>((event, emit) async {
       try {
-        String state = await FireStoreMethod()
-            .followUser(event.userId, event.uid, event.following);
+        String state =
+            await FireStoreMethod().followUser(event.userId, event.uid);
         emit(FollowSuccess(message: state));
       } on FirebaseException catch (e) {
         print(e.code);

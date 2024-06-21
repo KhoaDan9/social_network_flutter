@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagramz_flutter/features/home/bloc/home_bloc.dart';
+import 'package:instagramz_flutter/features/home/bloc/home_event.dart';
 import 'package:instagramz_flutter/models/post_model.dart';
 import 'package:instagramz_flutter/models/user_model.dart';
 import 'package:instagramz_flutter/resources/auth_method.dart';
@@ -46,19 +47,17 @@ class _ProfileViewState extends State<ProfileView>
 
   @override
   Widget build(BuildContext context) {
-    // model.UserModel user = Provider.of<UserProvider>(context).getUser;
     HomeBloc homebloc = BlocProvider.of<HomeBloc>(context);
     UserModel user = homebloc.state.user!;
+
     return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: widget.uid)
-            .snapshots(),
+        stream: FireStoreMethod().getStreamUserByUid(widget.uid),
         builder: (context, snapshot2) {
           if (snapshot2.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          UserModel userProfile = UserModel.fromsnap(snapshot2.data!);
           return Scaffold(
             appBar: AppBar(
               title: const Text('Profile'),
@@ -111,19 +110,19 @@ class _ProfileViewState extends State<ProfileView>
                                 children: [
                                   CircleAvatar(
                                     radius: 40,
-                                    backgroundImage: NetworkImage(
-                                        snapshot2.data!.docs[0]['photoUrl']),
+                                    backgroundImage:
+                                        NetworkImage(userProfile.photoUrl),
                                   ),
                                   const SizedBox(
                                     height: 5,
                                   ),
                                   Text(
-                                    snapshot2.data!.docs[0]['username'],
+                                    userProfile.username,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18),
                                   ),
-                                  Text(snapshot2.data!.docs[0]['fullname']),
+                                  Text(userProfile.fullname),
                                 ],
                               ),
                               Expanded(
@@ -136,19 +135,16 @@ class _ProfileViewState extends State<ProfileView>
                                           CrossAxisAlignment.center,
                                       children: [
                                         TextColumnProfile(
-                                          num: snapshot.data!.docs.length
-                                              .toString(),
+                                          num: posts.length.toString(),
                                           content: 'Posts',
                                         ),
                                         TextColumnProfile(
-                                          num: snapshot2
-                                              .data!.docs[0]["followers"].length
+                                          num: userProfile.followers.length
                                               .toString(),
                                           content: 'Followers',
                                         ),
                                         TextColumnProfile(
-                                          num: snapshot2
-                                              .data!.docs[0]["following"].length
+                                          num: userProfile.following.length
                                               .toString(),
                                           content: 'Following',
                                         ),
@@ -161,8 +157,7 @@ class _ProfileViewState extends State<ProfileView>
                                       ),
                                       child: SizedBox(
                                         width: double.infinity,
-                                        child: snapshot2.data!.docs[0]['uid'] ==
-                                                user.uid
+                                        child: userProfile.uid == user.uid
                                             ? OutlinedButton(
                                                 onPressed: () {
                                                   Navigator.push(
@@ -191,39 +186,42 @@ class _ProfileViewState extends State<ProfileView>
                                                   Expanded(
                                                     child: OutlinedButton(
                                                       onPressed: () async {
-                                                        FireStoreMethod()
+                                                        await FireStoreMethod()
                                                             .followUser(
-                                                                user.uid,
-                                                                snapshot2.data!
-                                                                        .docs[0]
-                                                                    ["uid"],
-                                                                user.following);
-                                                        if (!context.mounted) {
-                                                          return;
-                                                        }
+                                                          user.uid,
+                                                          userProfile.uid,
+                                                        );
+                                                        final UserModel
+                                                            userUpdate =
+                                                            await FireStoreMethod()
+                                                                .getUserByUid(
+                                                                    user.uid);
+
+                                                        user = userUpdate;
+                                                        homebloc.add(SetUser(
+                                                            user: userUpdate));
+                                                        homebloc.add(
+                                                            const PageTapped(
+                                                                pageIndex: 0));
                                                       },
-                                                      style: snapshot2
-                                                              .data!
-                                                              .docs[0]
-                                                                  ["followers"]
-                                                              .contains(
-                                                                  user.uid)
-                                                          ? ButtonStyle(
-                                                              backgroundColor:
-                                                                  WidgetStateProperty
-                                                                      .all(Colors
-                                                                          .black),
-                                                            )
-                                                          : ButtonStyle(
-                                                              backgroundColor:
-                                                                  WidgetStateProperty
-                                                                      .all(Colors
-                                                                          .white),
-                                                            ),
-                                                      child: snapshot2
-                                                              .data!
-                                                              .docs[0]
-                                                                  ["followers"]
+                                                      style:
+                                                          userProfile.followers
+                                                                  .contains(
+                                                                      user.uid)
+                                                              ? ButtonStyle(
+                                                                  backgroundColor:
+                                                                      WidgetStateProperty.all(
+                                                                          Colors
+                                                                              .black),
+                                                                )
+                                                              : ButtonStyle(
+                                                                  backgroundColor:
+                                                                      WidgetStateProperty.all(
+                                                                          Colors
+                                                                              .white),
+                                                                ),
+                                                      child: userProfile
+                                                              .followers
                                                               .contains(
                                                                   user.uid)
                                                           ? const Text(
@@ -243,9 +241,7 @@ class _ProfileViewState extends State<ProfileView>
                                                   IconButton(
                                                     onPressed: () async {
                                                       final sendToUser =
-                                                          UserModel.fromsnap(
-                                                              snapshot2.data!
-                                                                  .docs[0]);
+                                                          userProfile;
 
                                                       String messageBoxId =
                                                           await FireStoreMethod()
@@ -289,7 +285,7 @@ class _ProfileViewState extends State<ProfileView>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: Text(
-                            snapshot2.data!.docs[0]['bio'],
+                            userProfile.bio,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
@@ -325,7 +321,7 @@ class _ProfileViewState extends State<ProfileView>
                                   scaffoldKey: _scaffoldKey,
                                 ),
                               ),
-                              MediaView(uid: snapshot2.data!.docs[0]["uid"]),
+                              MediaView(uid: userProfile.uid),
                             ],
                           ),
                         ),

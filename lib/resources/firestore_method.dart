@@ -62,12 +62,6 @@ class FireStoreMethod {
     }
   }
 
-  // QuerySnapshot querySnapshot = await _firestore
-  //         .collection('posts')
-  //         .orderBy('datePublished', descending: true)
-  //         .get();
-  //     return querySnapshot.docs.map((doc) => PostModel.fromsnap(doc)).toList();
-
   Stream<QuerySnapshot<Map<String, dynamic>>> getStreamProfilePosts(
       String uid) {
     try {
@@ -79,6 +73,15 @@ class FireStoreMethod {
             descending: true,
           )
           .snapshots();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getStreamUserByUid(
+      String uid) {
+    try {
+      return _firestore.collection('users').doc(uid).snapshots();
     } catch (e) {
       rethrow;
     }
@@ -189,9 +192,10 @@ class FireStoreMethod {
     }
   }
 
-  Future<String> followUser(String userId, String uid, List following) async {
+  Future<String> followUser(String userId, String uid) async {
     try {
-      if (following.contains(uid)) {
+      final UserModel userUid = await getUserByUid(uid);
+      if (userUid.followers.contains(userId)) {
         await _firestore.collection('users').doc(userId).update({
           'following': FieldValue.arrayRemove([uid]),
         });
@@ -214,7 +218,7 @@ class FireStoreMethod {
     }
   }
 
-  Future<UserModel> getUserDetailsByUid(String uid) async {
+  Future<UserModel> getUserByUid(String uid) async {
     try {
       final snap = await _firestore.collection('users').doc(uid).get();
       return UserModel.fromsnap(snap);

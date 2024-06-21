@@ -151,7 +151,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         await AuthMethod().editProfile(
                             widget.user, _username.text, _bio.text, _image);
                         final UserModel userUpdate = await FireStoreMethod()
-                            .getUserDetailsByUid(widget.user.uid);
+                            .getUserByUid(widget.user.uid);
                         HomeBloc homeBloc = BlocProvider.of<HomeBloc>(context);
                         homeBloc.add(SetUser(user: userUpdate));
                         homeBloc.add(const PageTapped(
