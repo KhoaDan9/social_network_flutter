@@ -4,10 +4,10 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:instagramz_flutter/models/message.dart';
 import 'package:instagramz_flutter/resources/firestore_method.dart';
 import 'package:intl/intl.dart';
-import 'package:instagramz_flutter/models/user_model.dart' as model;
+import 'package:instagramz_flutter/models/user_model.dart';
 
 class MessageView extends StatefulWidget {
-  final model.UserModel user;
+  final UserModel user;
   final String messageBoxId;
   const MessageView({
     super.key,
